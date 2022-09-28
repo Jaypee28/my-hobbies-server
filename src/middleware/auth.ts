@@ -1,32 +1,30 @@
-import { Request, Response } from "express";
-import { verify } from "jsonwebtoken";
-import { AppDataSource } from "../config/db";
-import { User } from "../entity/User";
+import { Request, Response, NextFunction } from "express";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-export const AuthMiddleware = async (req: Request, res: Response, next: Function) => {
+dotenv.config({ path: './.env' });
+
+export const AuthMiddleware = function(req: Request | any, res: Response, next: NextFunction){
+    // Get token from header
+    const token = req.header('x-auth-token');
+
+    // Check if no token
+    if(!token){
+        return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    // Verify Token
     try {
-        const jwt = req.cookies["jwt"];
-
-        const payload: any = verify(jwt, process.env.SECRET_KEY);
-
-        if(!payload){
-            return res.status(401).send({
-                message: "Unauthenticated"
-            });
-        }
-
-        const repository = AppDataSource.getRepository(User);
-
-        req["user"] = await repository.findOne({ 
-            where: {
-                id: payload.id
-            }    
+        jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
+            if (error) {
+              return res.status(401).json({ msg: 'Token is not valid' });
+            } else {
+              req.user = decoded.user;
+              next();
+            }
         });
-
-        next();
-    } catch (error) {
-        return res.status(401).send({
-            message: "Unauthenticated"
-        });
+    } catch (err) {
+        console.error('Something wrong with auth middleware');
+        res.status(500).json({ msg: 'Server Error' });
     }
 }
