@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../config/db";
 import { User } from "../entity/User";
 import { RegisterValidation } from "../validation/registerValidation";
-import { sign, verify } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 dotenv.config({ path: './.env' });
 
@@ -58,37 +58,36 @@ export const Login = async (req: Request, res: Response) => {
         });
     }
 
-    const token = sign({ id: user.id }, process.env.SECRET_KEY);
+    const payload = {
+        user: {
+            id: user.id
+        }
+    }
 
-    res.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 //1 day
-    });
-
-    res.send({ message: "Success" });
+    jwt.sign(
+        payload, 
+        process.env.SECRET_KEY,
+        {expiresIn: '5 days'},
+        (err, token) => {
+            if(err) throw err
+            res.json({ token });
+        }
+    );
 }
 
-export const AuthenticatedUser = async (req: Request, res: Response) => {
+export const AuthenticatedUser = async (req: Request | any, res: Response) => {
     try {
-        const jwt = req.cookies["jwt"];
-
-        const payload: any = verify(jwt, process.env.SECRET_KEY);
-
-        if(!payload){
-            return res.status(401).send({
-                message: "Unauthenticated"
-            });
-        }
 
         const repository = AppDataSource.getRepository(User);
 
         const user = await repository.findOne({
             where:{
-                id: payload.id
+                id: req.user.id
             }
         });
+        
 
-        res.send(user);
+        res.json(user)
         
     } catch (error) {
         return res.status(401).send({
