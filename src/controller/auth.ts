@@ -80,14 +80,14 @@ export const AuthenticatedUser = async (req: Request | any, res: Response) => {
 
         const repository = AppDataSource.getRepository(User);
 
-        const user = await repository.findOne({
+        const {password, ...user} = await repository.findOne({
             where:{
                 id: req.user.id
             }
         });
         
 
-        res.json(user)
+        res.json(user);
         
     } catch (error) {
         return res.status(401).send({
