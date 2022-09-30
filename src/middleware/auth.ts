@@ -6,7 +6,7 @@ dotenv.config({ path: './.env' });
 
 export const AuthMiddleware = function(req: Request | any, res: Response, next: NextFunction){
     // Get token from header
-    const token = req.header('x-auth-token');
+    const token = req.header('X-Auth-Token');
 
     // Check if no token
     if(!token){
