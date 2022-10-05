@@ -38,7 +38,7 @@ export const UpdatePassword = async (req: Request, res: Response) => {
     res.send(data);
 }
 
-export const AddHobbies = async (req: Request, res: Response) => {
+export const AddHobby = async (req: Request, res: Response) => {
     const body = req.body;
 
     const user = req["user"];
@@ -55,7 +55,7 @@ export const AddHobbies = async (req: Request, res: Response) => {
     res.send(hobby); 
 }
 
-export const UpdateHobbies = async (req: Request, res: Response) => {
+export const UpdateHobby = async (req: Request, res: Response) => {
     const paramsID: number = parseInt(req.params.id);
 
     const repository = AppDataSource.getRepository(Hobby);
@@ -63,7 +63,8 @@ export const UpdateHobbies = async (req: Request, res: Response) => {
     const id = await repository.findOne({
         where: {
             id: paramsID
-    }});
+        }
+    });
 
     await repository.update(id, req.body);
 
@@ -76,7 +77,24 @@ export const UpdateHobbies = async (req: Request, res: Response) => {
     res.send(data);
 }
 
-export const getHobbiesDetails = async (req: Request, res: Response) => {
+export const DeleteHobby = async (req: Request, res: Response) => {
+    const paramsID: number = parseInt(req.params.id);
+
+    const repository = AppDataSource.getRepository(Hobby);
+
+    const id = await repository.findOne({
+        where: {
+            id: paramsID
+        }
+    });
+
+    const {...data} = await repository.update(id, {deleted: true});
+
+    res.send(data);
+
+}
+
+export const GetHobbyDetails = async (req: Request, res: Response) => {
     const paramsID: number = parseInt(req.params.id);
 
     const repository = AppDataSource.getRepository(Hobby);
@@ -90,7 +108,7 @@ export const getHobbiesDetails = async (req: Request, res: Response) => {
     res.send(data);
 }
 
-export const getUserHobbies = async (req: Request, res: Response) => {
+export const GetUserHobbies = async (req: Request, res: Response) => {
     const user = req["user"];
 
     const repository = AppDataSource.getRepository(Hobby);
@@ -104,7 +122,7 @@ export const getUserHobbies = async (req: Request, res: Response) => {
     
 }
 
-export const sortHobbiesASC = async (req: Request, res: Response) => {
+export const SortHobbiesASC = async (req: Request, res: Response) => {
     const user = req["user"];
 
     const repository = AppDataSource.getRepository(Hobby);
@@ -121,7 +139,7 @@ export const sortHobbiesASC = async (req: Request, res: Response) => {
     
 }
 
-export const sortHobbiesDESC = async (req: Request, res: Response) => {
+export const SortHobbiesDESC = async (req: Request, res: Response) => {
     const user = req["user"];
 
     const repository = AppDataSource.getRepository(Hobby);
@@ -130,7 +148,8 @@ export const sortHobbiesDESC = async (req: Request, res: Response) => {
             name: "DESC"
         },
         where: {
-            user: user
+            user: user,
+            deleted: false
         }
     })
     res.send(data);

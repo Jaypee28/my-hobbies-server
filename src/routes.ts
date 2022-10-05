@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { AuthenticatedUser, Login, Logout, Register } from "./controller/auth";
-import { UpdatePassword, UpdateProfile, AddHobbies, UpdateHobbies, getHobbiesDetails, getUserHobbies, sortHobbiesASC, sortHobbiesDESC } from "./controller/user";
+import { UpdatePassword, UpdateProfile, AddHobby, UpdateHobby, GetHobbyDetails, GetUserHobbies, SortHobbiesASC, SortHobbiesDESC, DeleteHobby } from "./controller/user";
 import { AuthMiddleware } from "./middleware/auth";
 
 export const routes = (router: Router) => {
@@ -15,17 +15,19 @@ export const routes = (router: Router) => {
 
     router.put('/api/user/profile', AuthMiddleware, UpdateProfile);
 
-    router.get('/api/user/profile', AuthMiddleware, getUserHobbies);
+    router.get('/api/hobbies', AuthMiddleware, GetUserHobbies);
 
     router.put('/api/user/password', AuthMiddleware, UpdatePassword);
 
-    router.post('/api/user/hobbies', AuthMiddleware, AddHobbies);
+    router.post('/api/hobby', AuthMiddleware, AddHobby);
 
-    router.put('/api/user/hobbies/:id', AuthMiddleware, UpdateHobbies);
+    router.put('/api/hobby/:id', AuthMiddleware, UpdateHobby);
 
-    router.get('/api/user/hobbies/:id', AuthMiddleware, getHobbiesDetails);
+    router.put('/api/hobby/del/:id', AuthMiddleware, DeleteHobby);
 
-    router.get('/api/hobbies/sort/asc', AuthMiddleware, sortHobbiesASC);
+    router.get('/api/hobby/:id', AuthMiddleware, GetHobbyDetails);
 
-    router.get('/api/hobbies/sort/desc', AuthMiddleware, sortHobbiesDESC);
+    router.get('/api/hobbies/sort/asc', AuthMiddleware, SortHobbiesASC);
+
+    router.get('/api/hobbies/sort/desc', AuthMiddleware, SortHobbiesDESC);
 }
